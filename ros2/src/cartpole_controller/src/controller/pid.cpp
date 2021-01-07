@@ -1,0 +1,46 @@
+#include "cartpole_controller/controller/pid.hpp"
+
+#include <iostream>
+
+namespace cartpole{
+  namespace controller{
+    PID::PID(double target, double kp, double ki, double kd)
+      : target_{target}, kp_{kp}, ki_{ki}, kd_{kd}
+    {
+      reset();
+      
+      // display param
+      std::cout<< target_ << " " << kp_ << " "
+               << ki_ << " " << kd_ << "\n";
+      std::flush(std::cout);
+    }
+
+    void PID::reset()
+    {
+      prevError_ = 0.0;
+      integral_ = 0.0; 
+    }
+
+    void PID::set_target(double target)
+    {
+      target_ = target;
+    }
+
+    double PID::run(double state, long double delta)
+    {
+      double error{target_ - state};
+      double derivative;
+      double pid{0.0};
+      
+      if(delta > 0.0){
+        integral_ += error;
+        derivative = (error - prevError_)/delta;
+        prevError_ = error*delta;
+
+        pid = kp_*error + ki_*integral_ + kd_*derivative;
+      }
+  
+      return pid;
+    }
+  }
+}

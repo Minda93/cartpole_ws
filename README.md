@@ -4,6 +4,7 @@
 - [1. environment](#1-environment)
 - [2. Setup env](#2-setup-env)
 - [TODO](#todo)
+- [Bug](#bug)
 - [Reference](#reference)
 
 <!-- /TOC -->
@@ -31,6 +32,10 @@
   
 - [ ] cartpole_interface
 - [ ] cartpole_controller
+
+# Bug
+  * cartpole_interface
+    * Set models success but models is not moved in the gazebo gui  
 
 # Reference
 

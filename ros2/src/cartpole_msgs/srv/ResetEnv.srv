@@ -1,0 +1,6 @@
+# reset and set cart_pos and pole_ang
+float64 cart_pos 0.0      # set cart position (m)
+float64 pole_ang 0.0      # set pole angle (radian) 
+
+---
+bool success              # return true if setting state successful

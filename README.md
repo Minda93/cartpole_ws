@@ -62,16 +62,21 @@
   $ source <install-space-to-ros2-overlay-ws>/setup.bash
   $ colcon build --symlink-install --packages-skip ros1_bridge
 ```
-  
+
 # TODO  
   
 - [x] cartpole_interface
 - [ ] cartpole_controller
+- [ ] cartpole_controller : ros2 parameter
+- [ ] cartpole_controller : cart pid
 
 # Bug
   * cartpole_interface
-    * Set models success but models is not moved in the gazebo gui  
-
+    * Use service command line : Set the models success but the models is not moved in the gazebo gui.
+    * Use service Caller in the rqt : Set the models success and the models can be moved in the gazebo gui.
+  * cartpole_controller
+    * Can NOT generate ros parameter in the node. 
+    
 # Reference
 
 * [ppo_gazebo_tf](https://github.com/nav74neet/ppo_gazebo_tf)

@@ -1,6 +1,7 @@
 #ifndef CARTPOLE_PID_CONTROLLER_HPP_
 #define CARTPOLE_PID_CONTROLLER_HPP_
 
+#include "cartpole_controller/cartpole_param.hpp"
 #include "cartpole_controller/controller/pid.hpp"
 
 #include <memory>
@@ -14,6 +15,8 @@ namespace cartpole{
       explicit PIDController(
         double target_1, double kp_1, double ki_1, double kd_1,
         double target_2, double kp_2, double ki_2, double kd_2);
+      
+      explicit PIDController(CartpoleParam config);
 
       ~PIDController();
       

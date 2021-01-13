@@ -6,6 +6,8 @@
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "std_msgs/msg/float64.hpp"
 #include "std_srvs/srv/empty.hpp"
+
+#include "cartpole_controller/cartpole_param.hpp"
 #include "cartpole_controller/controller/pid_controller.hpp"
 
 #include <vector>
@@ -19,22 +21,22 @@ namespace cartpole {
     ~CartpoleController() = default;
 
     void reset();
-    
+    void start();
     void compute();
 
   private:
+    void load_config();
     void joint_state_callback(const sensor_msgs::msg::JointState::SharedPtr msg);
     void publish(double command);
-    // void reset(
-    //   const std::shared_ptr<std_srvs::srv::Empty::Request> request, 
-    //   std::shared_ptr<std_srvs::srv::Empty::Response> response);
 
   private:
+    ControlMode mode_;
+    CartpoleParam config_;
+    
     std::vector<double> cartpoleState_;
     double maxLimitPosition_;
     bool initFlag_;
     
-
     rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr jointState_sub_;
     rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr cartPosition_pub_;
     rclcpp::Service<std_srvs::srv::Empty>::SharedPtr reset_srv_;
@@ -46,6 +48,7 @@ namespace cartpole {
     rclcpp::Clock clock_;
     rclcpp::Time prevTime_;
     rclcpp::TimerBase::SharedPtr timer_;
+    rclcpp::TimerBase::SharedPtr startTimer_;
     
   }; // CartpoleController
 } // cartpole

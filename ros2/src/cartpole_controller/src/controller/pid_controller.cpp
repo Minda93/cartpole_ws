@@ -1,4 +1,6 @@
 #include "cartpole_controller/controller/pid_controller.hpp"
+
+#include "cartpole_controller/cartpole_param.hpp"
 #include "cartpole_controller/controller/pid.hpp"
 
 #include <iostream>
@@ -21,6 +23,15 @@ namespace cartpole{
         target_2, kp_2, ki_2, kd_2);
     }
 
+    PIDController::PIDController(CartpoleParam config)
+    : PIDController(
+        config.poleTarget, config.polePID.kp, config.polePID.ki, config.polePID.kd,
+        config.cartTarget, config.cartPID.kp, config.cartPID.ki, config.cartPID.kd
+      )
+    {
+
+    }
+
     void PIDController::reset()
     {
       poleAngCtrl_ptr_->reset();
@@ -40,10 +51,10 @@ namespace cartpole{
 
       cartVec = state[1]+0.1*normalize(polePID+cartPID);
       
-      std::cout<< state[0] << " " << state[1] << " " 
-              << polePID << " " << cartPID << " " // << " \n ";
-              << cartVec << "\n" ;
-      std::flush(std::cout);
+      // std::cout<< state[0] << " " << state[1] << " " 
+      //         << polePID << " " << cartPID << " " // << " \n ";
+      //         << cartVec << "\n" ;
+      // std::flush(std::cout);
 
       return cartVec;
     }

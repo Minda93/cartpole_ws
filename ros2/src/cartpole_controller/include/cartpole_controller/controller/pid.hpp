@@ -12,6 +12,10 @@ namespace cartpole{
       double run(double state, long double delta);
       void reset();
       void set_target(double target);
+      
+      void set_kp(double kp);
+      void set_ki(double ki);
+      void set_kd(double kd);
 
     private:
       double target_;

@@ -79,7 +79,7 @@
     * Using component node to load params can **NOT** success in launch file  
       * for launch_ros 0.11.1
       * solution: change yaml file format
-      * <font color=#FF0000>Running ros2 param list is NOTHING</font>
+      * `Running ros2 param list is NOTHING`
     
     * normal format
     ```yaml

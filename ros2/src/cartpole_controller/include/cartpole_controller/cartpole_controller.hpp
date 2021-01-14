@@ -2,6 +2,7 @@
 #define CARTPOLE_CONTROLLER_HPP_
 
 #include "rclcpp/rclcpp.hpp"
+#include "rcl_interfaces/msg/set_parameters_result.hpp"
 
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "std_msgs/msg/float64.hpp"
@@ -25,9 +26,12 @@ namespace cartpole {
     void compute();
 
   private:
-    void load_config();
     void joint_state_callback(const sensor_msgs::msg::JointState::SharedPtr msg);
     void publish(double command);
+
+    void load_config();
+    rcl_interfaces::msg::SetParametersResult dynamic_load_params(
+      const std::vector<rclcpp::Parameter> &params);
 
   private:
     ControlMode mode_;

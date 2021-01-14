@@ -26,6 +26,21 @@ namespace cartpole{
       target_ = target;
     }
 
+    void PID::set_kp(double kp)
+    {
+      kp_ = kp;
+    }
+
+    void PID::set_ki(double ki)
+    {
+      ki_ = ki;
+    }
+
+    void PID::set_kd(double kd)
+    {
+      kd_ = kd;
+    }
+
     double PID::run(double state, long double delta)
     {
       double error{target_ - state};
@@ -39,6 +54,10 @@ namespace cartpole{
 
         pid = kp_*error + ki_*integral_ + kd_*derivative;
       }
+
+      std::cout<< kp_ << " " << ki_ << " " 
+              << kd_ << "\n" ;
+      std::flush(std::cout);
   
       return pid;
     }

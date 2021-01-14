@@ -1,4 +1,5 @@
 #include "rclcpp/rclcpp.hpp"
+#include "rcl_interfaces/msg/set_parameters_result.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
 
 #include "cartpole_controller/cartpole_controller.hpp"
@@ -21,18 +22,6 @@ namespace cartpole{
     mode_{IDLE}
   {
     // declare param and get param
-    this->declare_parameter<double>("cartpole/max_limit_pos", 0.43);
-    this->declare_parameter<double>("cartpole/pole_target", 0.0);
-    this->declare_parameter<double>("cartpole/cart_target", 0.0);
-
-    this->declare_parameter<double>("cartpole/pid/pole_p", 2.0);
-    this->declare_parameter<double>("cartpole/pid/pole_i", 0.48);
-    this->declare_parameter<double>("cartpole/pid/pole_d", 0.13);
-
-    this->declare_parameter<double>("cartpole/pid/cart_p", 0.0);
-    this->declare_parameter<double>("cartpole/pid/cart_i", 0.0);
-    this->declare_parameter<double>("cartpole/pid/cart_d", 0.0);
-    
     load_config();
     
     // init
@@ -83,21 +72,90 @@ namespace cartpole{
 
     pidCtrl_ptr_ = std::make_shared<controller::PIDController>(config_);
     
+    set_on_parameters_set_callback(
+      std::bind(&CartpoleController::dynamic_load_params, this, std::placeholders::_1));
+
     reset();
   }
 
+  void CartpoleController::reset()
+  {
+    mode_ = IDLE;
+    pidCtrl_ptr_->reset();
+
+    publish(config_.cartTarget);
+    prevTime_ = clock_.now();
+
+    startTimer_->reset();
+
+    RCLCPP_INFO(this->get_logger(), "cart target [%f]", config_.cartTarget);
+    // std::cout << " reset \n";
+    std::flush(std::cout);
+  }
+
+  void CartpoleController::start()
+  {
+    mode_ = INACTIVE;
+    startTimer_->cancel();
+
+    // RCLCPP_INFO(this->get_logger(), "inactive");
+    // std::flush(std::cout);
+  }
+
+  void CartpoleController::compute()
+  { 
+    rclcpp::Duration delta = clock_.now() - prevTime_ ;
+
+    if(mode_ == START_UP){
+      publish(pidCtrl_ptr_->compute(cartpoleState_, delta.seconds()));
+    }
+  }
+
+  void CartpoleController::joint_state_callback(const sensor_msgs::msg::JointState::SharedPtr msg)
+  {
+    // RCLCPP_INFO(this->get_logger(), "I heard: [%f %f %f %f]", msg->position[0], msg->position[1], msg->velocity[0], msg->velocity[1]);
+    // std::flush(std::cout);
+    if(mode_ == INACTIVE){
+      mode_ = START_UP;
+    }
+
+    cartpoleState_[0] = msg->position[0];
+    cartpoleState_[1] = msg->position[1];
+    
+    cartpoleState_[2] = msg->velocity[0];
+    cartpoleState_[3] = msg->velocity[1];
+  }
+
+  void CartpoleController::publish(double command)
+  {
+    auto pub_msg = std::make_unique<std_msgs::msg::Float64>();
+
+    if(command > config_.maxLimitPos)
+      pub_msg->data = config_.maxLimitPos;
+    else if(command < -config_.maxLimitPos)
+      pub_msg->data = -config_.maxLimitPos;
+    else
+      pub_msg->data = command;
+    
+    cartPosition_pub_->publish(std::move(pub_msg));
+
+    // RCLCPP_INFO(this->get_logger(), "I heard: [%f]", command);
+    // std::cout<< command << "\n";
+    // std::flush(std::cout);
+  }
+
   void CartpoleController::load_config(){
-    // this->declare_parameter<double>("cartpole/max_limit_pos", 0.43);
-    // this->declare_parameter<double>("cartpole/pole_target", 0.0);
-    // this->declare_parameter<double>("cartpole/cart_target", 0.0);
+    this->declare_parameter<double>("cartpole/max_limit_pos", 0.43);
+    this->declare_parameter<double>("cartpole/pole_target", 0.0);
+    this->declare_parameter<double>("cartpole/cart_target", 0.1);
 
-    // this->declare_parameter<double>("cartpole/pid/pole_p", 2.0);
-    // this->declare_parameter<double>("cartpole/pid/pole_i", 0.48);
-    // this->declare_parameter<double>("cartpole/pid/pole_d", 0.13);
+    this->declare_parameter<double>("cartpole/pid/pole_p", 2.0);
+    this->declare_parameter<double>("cartpole/pid/pole_i", 0.48);
+    this->declare_parameter<double>("cartpole/pid/pole_d", 0.13);
 
-    // this->declare_parameter<double>("cartpole/pid/cart_p", 0.0);
-    // this->declare_parameter<double>("cartpole/pid/cart_i", 0.0);
-    // this->declare_parameter<double>("cartpole/pid/cart_d", 0.0);
+    this->declare_parameter<double>("cartpole/pid/cart_p", 0.0);
+    this->declare_parameter<double>("cartpole/pid/cart_i", 0.0);
+    this->declare_parameter<double>("cartpole/pid/cart_d", 0.0);
 
     get_parameter_or<double>(
       "cartpole/max_limit_pos",
@@ -145,69 +203,57 @@ namespace cartpole{
       0.0);
   }
 
-  void CartpoleController::reset()
+  rcl_interfaces::msg::SetParametersResult CartpoleController::dynamic_load_params(
+    const std::vector<rclcpp::Parameter> &params)
   {
-    mode_ = IDLE;
-    pidCtrl_ptr_->reset();
+    rcl_interfaces::msg::SetParametersResult result;
+    result.successful = true;
+    result.reason = "success";
 
-    publish(config_.cartTarget);
-    prevTime_ = clock_.now();
-
-    startTimer_->reset();
-
-    std::cout << " reset \n";
-    std::flush(std::cout);
-  }
-
-  void CartpoleController::start()
-  {
-    mode_ = INACTIVE;
-    startTimer_->cancel();
-
-    // std::cout << " inactive \n";
-    // std::flush(std::cout);
-  }
-
-  void CartpoleController::joint_state_callback(const sensor_msgs::msg::JointState::SharedPtr msg)
-  {
-    // RCLCPP_INFO(this->get_logger(), "I heard: [%f %f %f %f]", msg->position[0], msg->position[1], msg->velocity[0], msg->velocity[1]);
-    // std::flush(std::cout);
-    if(mode_ == INACTIVE){
-      mode_ = START_UP;
+    for(const auto &param : params)
+    {
+      if(param.get_name() == "cartpole/max_limit_pos" &&
+        param.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE)
+      {
+        config_.maxLimitPos = param.as_double();
+      }else if(param.get_name() == "cartpole/pole_target" &&
+        param.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE)
+      {
+        config_.poleTarget = param.as_double();
+      }else if(param.get_name() == "cartpole/cart_target" &&
+        param.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE)
+      {
+        config_.cartTarget = param.as_double();
+      }else if(param.get_name() == "cartpole/pid/pole_p" &&
+        param.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE)
+      {
+        config_.polePID.kp = param.as_double();
+      }else if(param.get_name() == "cartpole/pid/pole_i" &&
+        param.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE)
+      {
+        config_.polePID.ki = param.as_double();
+      }else if(param.get_name() == "cartpole/pid/pole_d" &&
+        param.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE)
+      {
+        config_.polePID.kd = param.as_double();
+      }else if(param.get_name() == "cartpole/pid/cart_p" &&
+        param.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE)
+      {
+        config_.cartPID.kp = param.as_double();
+      }else if(param.get_name() == "cartpole/pid/cart_i" &&
+        param.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE)
+      {
+        config_.cartPID.ki = param.as_double();
+      }else if(param.get_name() == "cartpole/pid/cart_d" &&
+        param.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE)
+      {
+        config_.cartPID.kd = param.as_double();
+      }      
     }
 
-    cartpoleState_[0] = msg->position[0];
-    cartpoleState_[1] = msg->position[1];
+    pidCtrl_ptr_->set_params(config_);
     
-    cartpoleState_[2] = msg->velocity[0];
-    cartpoleState_[3] = msg->velocity[1];
-  }
-
-  void CartpoleController::publish(double command)
-  {
-    auto pub_msg = std::make_unique<std_msgs::msg::Float64>();
-
-    if(command > config_.maxLimitPos)
-      pub_msg->data = config_.maxLimitPos;
-    else if(command < -config_.maxLimitPos)
-      pub_msg->data = -config_.maxLimitPos;
-    else
-      pub_msg->data = command;
-    
-    cartPosition_pub_->publish(std::move(pub_msg));
-
-    // RCLCPP_INFO(this->get_logger(), "I heard: [%f]", command);
-    // std::cout<< command << "\n";
-    // std::flush(std::cout);
-  }
-
-  void CartpoleController::compute()
-  { 
-    rclcpp::Duration delta = clock_.now() - prevTime_ ;
-
-    if(mode_ == START_UP){
-      publish(pidCtrl_ptr_->compute(cartpoleState_, delta.seconds()));
-    }
+    return result;
   }
 }
 

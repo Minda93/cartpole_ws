@@ -38,9 +38,17 @@ namespace cartpole{
       cartPosCtrl_ptr_->reset();
     }
 
-    void PIDController::set_cart_pos(double target)
+    void PIDController::set_params(const CartpoleParam config)
     {
-      cartPosCtrl_ptr_->set_target(target);
+      poleAngCtrl_ptr_->set_target(config.poleTarget);
+      poleAngCtrl_ptr_->set_kp(config.polePID.kp);
+      poleAngCtrl_ptr_->set_ki(config.polePID.ki);
+      poleAngCtrl_ptr_->set_kd(config.polePID.kd);
+
+      cartPosCtrl_ptr_->set_target(config.cartTarget);
+      cartPosCtrl_ptr_->set_kp(config.cartPID.kp);
+      cartPosCtrl_ptr_->set_ki(config.cartPID.ki);
+      cartPosCtrl_ptr_->set_kd(config.cartPID.kd);
     }
 
     double PIDController::compute(const std::vector<double> &state, double delta)

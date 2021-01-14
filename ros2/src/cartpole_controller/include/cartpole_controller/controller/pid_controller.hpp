@@ -21,7 +21,8 @@ namespace cartpole{
       ~PIDController();
       
       void reset();
-      void set_cart_pos(const double target);
+      void set_params(const CartpoleParam config);
+      
       double compute(const std::vector<double> &state, double delta);
 
     private:

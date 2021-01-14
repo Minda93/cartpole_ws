@@ -1,0 +1,12 @@
+cartpole_controller:
+  ros__parameters:
+    cartpole/cart_target: 0.0
+    cartpole/max_limit_pos: 0.43
+    cartpole/pid/cart_d: 0.0
+    cartpole/pid/cart_i: 0.0
+    cartpole/pid/cart_p: 0.0
+    cartpole/pid/pole_d: 0.13
+    cartpole/pid/pole_i: 0.48
+    cartpole/pid/pole_p: 2.0
+    cartpole/pole_target: 0.0
+    use_sim_time: false

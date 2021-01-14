@@ -73,13 +73,33 @@
 # Bug
   * cartpole_interface
     * Use service command line : Set the models success but the models is not moved in the gazebo gui.
-    * Use service Caller in the rqt : Set the models success and the models can be moved in the gazebo gui.
-  * cartpole_controller
-    * Can NOT generate ros parameter in the node. 
+    * Use service Caller in the rqt : Set the models success and the models can be moved in the gazebo gui.  
+    
+  * cartpole_controller 
+    * Using component node to load params can **NOT** success in launch file  
+      * for launch_ros 0.11.1
+      * solution: change yaml file format
+      * <font color=#FF0000>Running ros2 param list is NOTHING</font>
+    
+    * normal format
+    ```yaml
+      node_name:
+        ros_parameters:
+          param1: 0.0
+          param2: 0.1
+    ```  
+
+    * special format
+    ```yaml
+      param1: 0.0
+      param2: 0.1
+    ```
     
 # Reference
 
 * [ppo_gazebo_tf](https://github.com/nav74neet/ppo_gazebo_tf)
   * cartpole_env
 * [ros1_bridge](https://github.com/ros2/ros1_bridge)
+* [launch_ros issue](https://github.com/ros2/launch_ros/issues/156#issuecomment-759644376)
+  * component node bug 
   

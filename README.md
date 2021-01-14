@@ -7,6 +7,10 @@
   - [3.1 ros1](#31-ros1)
   - [3.2 ros2](#32-ros2)
   - [3.3 ros1_bridge](#33-ros1_bridge)
+- [4. Run](#4-run)
+  - [4.1 cartpole simulation](#41-cartpole-simulation)
+  - [4.2 ros1_bridge](#42-ros1_bridge)
+  - [4.3 cartpole components test](#43-cartpole-components-test)
 - [TODO](#todo)
 - [Bug](#bug)
 - [Reference](#reference)
@@ -27,10 +31,10 @@
 # 2. Setup env  
 * download packages  
   
-  ```bash
-    cd <cartpole_ws>/ros2/src
-    git clone https://github.com/ros2/ros1_bridge.git -b foxy
-  ```  
+```bash
+  cd <cartpole_ws>/ros2/src
+  git clone https://github.com/ros2/ros1_bridge.git -b foxy
+```  
   
 # 3. Build env  
 
@@ -62,6 +66,41 @@
   $ source <install-space-to-ros2-overlay-ws>/setup.bash
   $ colcon build --symlink-install --packages-skip ros1_bridge
 ```
+
+# 4. Run
+
+## 4.1 cartpole simulation  
+
+```bash
+  $ cd <install-space-to-ros1-overlay-ws>/
+  $ source <install-space-to-ros1-overlay-ws>/setup.bash
+  $ roslaunch cartpole_gazebo cartpole_gazebo.launch
+```  
+
+## 4.2 ros1_bridge
+
+```bash
+  $ cd <path_of_ros2>
+  $ source <install-space-to-ros1-overlay-ws>/setup.bash
+  $ source <install-space-to-ros2-overlay-ws>/setup.bash
+  
+  # maybe use
+  # $ export ROS_MASTER_URI=http://localhost:11311
+
+  $ ros2 run ros1_bridge dynamic_bridge
+```  
+
+## 4.3 cartpole components test
+* components :
+  * cartpole_interface
+  * cartpole_controller
+
+```bash
+  $ cd <path_of_ros2>
+  $ source <install-space-with-ros2>/setup.bash
+  $ source <install-space-to-ros2-overlay-ws>/local_setup.bash
+  $ ros2 launch cartpole_controller cartpole_all_test_launch.py
+```  
 
 # TODO  
   

@@ -16,15 +16,6 @@ def generate_launch_description():
 
   pkgsPath = FindPackageShare(["cartpole_controller"])
 
-  config = pkgsPath.find("cartpole_controller")+ \
-          "/config/cartpole_controller.yaml"
-
-  # config ="/home/minda/work/cartpole_ws/ros2/install/" +\
-  #         "cartpole_controller/share/cartpole_controller/" +\
-  #         "config/cartpole_controller.yaml"
-
-  print(config)
-
   container = ComposableNodeContainer(
     name='ComponentManager',
     namespace='',

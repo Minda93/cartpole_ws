@@ -55,9 +55,9 @@ namespace cartpole{
         pid = kp_*error + ki_*integral_ + kd_*derivative;
       }
 
-      std::cout<< kp_ << " " << ki_ << " " 
-              << kd_ << "\n" ;
-      std::flush(std::cout);
+      // std::cout<< kp_ << " " << ki_ << " " 
+      //         << kd_ << "\n" ;
+      // std::flush(std::cout);
   
       return pid;
     }

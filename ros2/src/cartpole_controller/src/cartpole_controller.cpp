@@ -88,9 +88,9 @@ namespace cartpole{
 
     startTimer_->reset();
 
-    RCLCPP_INFO(this->get_logger(), "cart target [%f]", config_.cartTarget);
+    // RCLCPP_INFO(this->get_logger(), "cart target [%f]", config_.cartTarget);
     // std::cout << " reset \n";
-    std::flush(std::cout);
+    // std::flush(std::cout);
   }
 
   void CartpoleController::start()
@@ -105,10 +105,12 @@ namespace cartpole{
   void CartpoleController::compute()
   { 
     rclcpp::Duration delta = clock_.now() - prevTime_ ;
-
+    
     if(mode_ == START_UP){
       publish(pidCtrl_ptr_->compute(cartpoleState_, delta.seconds()));
     }
+
+    RCLCPP_INFO(this->get_logger(), "cart pos [%f]", cartpoleState_[1]);
   }
 
   void CartpoleController::joint_state_callback(const sensor_msgs::msg::JointState::SharedPtr msg)

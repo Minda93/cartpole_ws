@@ -11,6 +11,10 @@
   - [4.1 cartpole simulation](#41-cartpole-simulation)
   - [4.2 ros1_bridge](#42-ros1_bridge)
   - [4.3 cartpole components test](#43-cartpole-components-test)
+  - [4.4 rqt_gui](#44-rqt_gui)
+- [5. components](#5-components)
+  - [5.1 cartpole_interface](#51-cartpole_interface)
+  - [5.2 cartpole_controller](#52-cartpole_controller)
 - [TODO](#todo)
 - [Bug](#bug)
 - [Reference](#reference)
@@ -102,12 +106,54 @@
   $ ros2 launch cartpole_controller cartpole_all_test_launch.py
 ```  
 
+## 4.4 rqt_gui  
+* plugins
+  * Service Caller
+  * Dynamic Reconfigure  
+
+```bash
+  $ source <install-space-with-ros2>/setup.bash
+  $ source <install-space-to-ros2-overlay-ws>/local_setup.bash
+  $ ros2 run rqt_gui rqt_gui
+```
+
+# 5. components
+
+## 5.1 cartpole_interface  
+* topic
+  * output
+    * stand_cart_position_controller/command (std_msgs/float64)
+* service
+  * reset_env (cartpole_msgs/ResetEnv)
+  * gazebo/pause_physics (std_srvs/empty)
+  * gazebo/unpause_physics (std_srvs/empty)
+  * reset_cartpole_controller (std_srvs/empty)
+  * gazebo/set_model_configuration (gazebo_msgs/SetModelConfiguration)
+
+## 5.2 cartpole_controller  
+* topic
+  * input 
+    * joint_states (sensor_msgs/joint_state)
+  * output
+    * stand_cart_position_controller/command (std_msgs/float64)
+* service
+  * reset_cartpole_controller (std_srvs/empty)
+* parameter
+  * cartpole/cart_target   (double)
+  * cartpole/max_limit_pos (double)
+  * cartpole/pid/cart_d    (double)
+  * cartpole/pid/cart_i    (double)
+  * cartpole/pid/cart_p    (double)
+  * cartpole/pid/pole_d    (double)
+  * cartpole/pid/pole_i    (double)
+  * cartpole/pid/pole_p    (double)
+  * cartpole/pole_target   (double)
+
 # TODO  
   
 - [x] cartpole_interface
-- [ ] cartpole_controller
 - [x] cartpole_controller : ros2 parameter
-- [ ] cartpole_controller : cart pid
+- [ ] cartpole_controller : find pid parameters
 
 # Bug
   * cartpole_interface
@@ -117,12 +163,11 @@
   * cartpole_controller 
     * Using component node to load params can **NOT** success in launch file  
       * for launch_ros 0.11.1
-      * `Running ros2 param list is NOT working`
       * solution: change yaml file format
         * normal format
         ```yaml
           node_name:
-            ros_parameters:
+            ros__parameters:
               param1: 0.0
               param2: 0.1
         ```  
@@ -133,8 +178,14 @@
           param2: 0.1
         ```  
         
-    * ros2 param command line is NOT working
-      * use `dynamic reconfigure` in the rqt_gui
+    * ros2 param command line is sometimes NOT working
+      * all processing restart  
+    
+    * Starting controller is sometimes not better.
+      * /reset_env is not correctly implemented.
+        * "/stand_cart_position_controller/command" 
+        * "reset_controller"
+      * parameters are not better 
     
 # Reference
 

@@ -182,7 +182,7 @@
       * all processing restart  
     
     * Starting controller is sometimes not better.
-      * /reset_env is not correctly implemented.
+      * /reset_env is not correctly implemented in the cartpole_interface.
         * "/stand_cart_position_controller/command" 
         * "reset_controller"
       * parameters are not better 

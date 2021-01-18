@@ -1,0 +1,62 @@
+<launch>
+  <!-- roslaunch arguments -->
+  <arg name="show_rviz" default="false"/>
+  <arg name="debug" default="false"/>
+
+  <!-- can not control robot on gazebo -->
+  <arg name="manual_rviz" default="false"/>
+
+  <!-- no use -->
+  <!-- <arg name="fake_control" default="false"/> -->
+
+  <!-- Robot pose -->
+  <arg name="x" default="0"/>
+  <arg name="y" default="0"/>
+  <arg name="z" default="0"/>
+  <arg name="roll" default="0"/>
+  <arg name="pitch" default="0"/>
+  <arg name="yaw" default="0"/>
+
+  <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="paused" value="true"/>
+  </include>
+
+  <!-- urdf xml robot description loaded on the Parameter Server-->
+  <param name="robot_description" textfile='$(find cartpole_gazebo)/robots/cartpole_v1.urdf' />
+
+  <!-- push robot_description to factory and spawn robot in gazebo -->
+  <node name="cartpole_spawn" pkg="gazebo_ros" type="spawn_model" output="screen" 
+    args="-urdf -param robot_description -model cartpole -x $(arg x) -y $(arg y) -z $(arg z)
+              -R $(arg roll) -P $(arg pitch) -Y $(arg yaw)" />
+
+  <!-- simulate robot control and ouput /joint_states -->
+  <rosparam file="$(find cartpole_controller)/config/joint_position_control.yaml" command="load" />
+  <node unless="$(arg manual_rviz)" name="cartpole_controller_node" pkg="controller_manager" type="spawner" output="screen" args="joint_state_controller stand_cart_position_controller "/> 
+
+  <!-- robot visualization in Rviz -->
+  <group if="$(arg show_rviz)">
+    <node name="rviz" pkg="rviz" type="rviz" output="screen"
+      args="-d $(find cartpole_gazebo)/config/default.rviz" />    
+  
+    <!-- fake joint -->
+    <!-- If use, remeber to protect. Two /joint_states interfere in simulate or real robot -->
+    <!-- <node if="$(arg fake_control)" name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"> -->
+      <!-- <rosparam name="rate" value='60' /> -->
+      <!-- <rosparam param="source_list">["gazebo/joint_states"]</rosparam> -->
+    <!-- </node> -->
+    
+    <!-- manual -->
+    <!-- If use, remeber to protect. Two /joint_states interfere in simulate or real robot -->
+    <node if="$(arg manual_rviz)" name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui">
+      <param name="rate" value='60' />
+    </node>
+
+    <!-- display robot for urdf on rivz and ouput /tf /tf_static -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+      respawn="false" output="screen">
+    </node>
+
+  </group>
+
+</launch>

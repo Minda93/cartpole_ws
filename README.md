@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# cartpole_ws
-ros2 practice 1
-=======
 <!-- TOC -->
 
 - [cartpole_ws](#cartpole_ws)
@@ -158,6 +154,7 @@ ros2 practice 1
 - [x] cartpole_interface
 - [x] cartpole_controller : ros2 parameter
 - [ ] cartpole_controller : find pid parameters
+- [ ] demo node
 
 # Bug
   * cartpole_interface
@@ -199,4 +196,3 @@ ros2 practice 1
 * [launch_ros issue](https://github.com/ros2/launch_ros/issues/156#issuecomment-759644376)
   * component node bug 
   
->>>>>>> demo

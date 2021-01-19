@@ -155,6 +155,7 @@
 - [x] cartpole_controller : ros2 parameter
 - [ ] cartpole_controller : find pid parameters
 - [ ] demo node
+- [ ] introduction 
 
 # Bug
   * cartpole_interface

@@ -68,7 +68,7 @@
   $ source <install-space-with-ros1>/setup.bash
   $ source <install-space-to-ros1-overlay-ws>/setup.bash
   $ source <install-space-to-ros2-overlay-ws>/setup.bash
-  $ colcon build --symlink-install --packages-skip ros1_bridge
+  $ colcon build --symlink-install --packages-select ros1_bridge
 ```
 
 # 4. Run
@@ -188,6 +188,20 @@
         * "/stand_cart_position_controller/command" 
         * "reset_controller"
       * parameters are not better 
+      
+    * `this->set_on_parameters_set_callback` not found if use `galactic` version compile
+      * galactic remove `set_on_parameters_set_callback` and change to `add_on_set_parameters_callback`
+      * use
+        * for hpp
+        ```c++
+          OnSetParametersCallbackHandle::SharedPtr callback_handle_;
+        ```
+
+        * for cpp
+        ```c++
+          callback_handle_ = add_on_set_parameters_callback(
+            std::bind(&CartpoleController::dynamic_load_params, this, std::placeholders::_1));
+        ```
     
 # Reference
 

@@ -193,12 +193,16 @@
       * galactic remove `set_on_parameters_set_callback` and change to `add_on_set_parameters_callback`
       * use
         * for hpp
-        ```c++
-          OnSetParametersCallbackHandle::SharedPtr callback_handle_;
+        ```cpp
+          private:
+            OnSetParametersCallbackHandle::SharedPtr callback_handle_;
         ```
 
         * for cpp
-        ```c++
+        ```cpp
+          // set_on_parameters_set_callback(
+          //  std::bind(&CartpoleController::dynamic_load_params, this, std::placeholders::_1));
+          
           callback_handle_ = add_on_set_parameters_callback(
             std::bind(&CartpoleController::dynamic_load_params, this, std::placeholders::_1));
         ```
